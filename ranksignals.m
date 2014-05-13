@@ -22,7 +22,7 @@ function varargout = ranksignals(varargin)
 
 % Edit the above text to modify the response to help ranksignals
 
-% Last Modified by GUIDE v2.5 13-May-2014 14:04:05
+% Last Modified by GUIDE v2.5 13-May-2014 16:42:17
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -56,6 +56,8 @@ function ranksignals_OpeningFcn(hObject, eventdata, handles, varargin)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to ranksignals (see VARARGIN)
+
+axis off;
 
 % Choose default command line output for ranksignals
 handles.output = hObject;
@@ -137,6 +139,7 @@ else
     % ... Now let the user perform the forced choice experiments.
     
     
+    
 end
 
 
@@ -181,27 +184,45 @@ img_denoised = func_denoise_dw2d(img_gaincorrected);
 img_double = double(img_denoised);
 % ... Find all local peaks in the image
 img_peakpositions = findpeaks2D(img_double, 3, 1);
-% ... Filter the peaks by the criterion below 
-[int_linearindices] = find(img_peakpositions == 1  & img_double > 450);
-[int_R, int_C] = find(img_peakpositions == 1  & img_double > 450);
-img_peakpositions = zeros(size(img_peakpositions));
-img_peakpositions(int_linearindices) = 1;
-% ... Grade these peak positions
-img_grade = gradepeaks2D(img_double, img_peakpositions, 3, 11);
+% ... Filter the peaks by the criterion below
 
-% ... Load the data structure
+% ...... First for the high peaks / signals
+[int_linearindices_high] = find(img_peakpositions == 1  & img_double > 450);
+[int_R_high, int_C_high] = find(img_peakpositions == 1  & img_double > 450);
+img_peakpositions_high = zeros(size(img_peakpositions));
+img_peakpositions_high(int_linearindices_high) = 1;
+img_grade_high = gradepeaks2D(img_double, img_peakpositions_high, 3, 11);
+
+% ...... Then for the low peaks / signals
+[int_linearindices_low] = find(img_peakpositions == 1  & img_double < 350 & img_double > 300);
+[int_R_low, int_C_low] = find(img_peakpositions == 1  & img_double < 350 & img_double > 300);
+img_peakpositions_low = zeros(size(img_peakpositions));
+img_peakpositions_low(int_linearindices_low) = 1;
+img_grade_low = gradepeaks2D(img_double, img_peakpositions_low, 3, 11);
+
+% ... Grade these peak positions
+% img_grade = gradepeaks2D(img_double, img_peakpositions, 3, 11);
+
+% ... Load the data structure with img name, peak fitness, rows and columns
+% ... as well as whether it is treated as a peak or not.
 Data = [];
-for k = 1:length(int_linearindices)
+for k = 1:length(int_linearindices_high)
     Data(k).img = str_imgfilename;
-    Data(k).peak = sum(img_grade(int_R(k), int_C(k), :));
-    assert(length(img_grade(int_R(k), int_C(k), :)) == 5, 'Length mismatch in firstprocimg');
-    Data(k).r = int_R(k);
-    Data(k).c = int_C(k);
+    Data(k).peak = sum(img_grade_high(int_R_high(k), int_C_high(k), :));
+    assert(length(img_grade_high(int_R_high(k), int_C_high(k), :)) == 5, 'Length mismatch in firstprocimg');
+    Data(k).r = int_R_high(k);
+    Data(k).c = int_C_high(k);
     Data(k).ispeak = 1;
 end
 
+int_offset = length(Data);
+for k = int_offset+1 : int_offset+length(int_linearindices_low)
+    Data(k).img = str_imgfilename;
+    Data(k).peak = sum(img_grade_low(int_R_low(k), int_C_low(k), :));
+    assert(length(img_grade_low(int_R_low(k), int_C_low(k), :)) == 5, 'Length mismatch in firstprocimg');
+    Data(k).r = int_R_low(k);
+    Data(k).c = int_C_low(k);
+    Data(k).ispeak = 0;
+end
+
 img_output = Data;
-
-
-
-
