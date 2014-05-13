@@ -103,16 +103,40 @@ str_imgfilepath = PATHNAME;
 img_inputimg = imread([str_imgfilepath str_imgfilename]);
 
 % Load the Data file
-if exists(str_datafilename, 'file')
+if exist(str_datafilename, 'file')
     % Data file exists, therefore ...
     
     % ... Load all the data.
     struct_data = load(str_datafilename);
     
-    % ... Find if the image has already been added to the database.
-    find([structdata.imgname] == str_imgfilename)
+    % THIS LINE SHOULD BE REMOVED AFTER TESTING
+    % THIS LINE SHOULD BE REMOVED AFTER TESTING
+    % THIS LINE SHOULD BE REMOVED AFTER TESTING
+    struct_data = struct_data.Data; 
+    % THIS LINE SHOULD BE REMOVED AFTER TESTING
+    % THIS LINE SHOULD BE REMOVED AFTER TESTING
+    % THIS LINE SHOULD BE REMOVED AFTER TESTING
     
-    % ... 
+    % ... Find if the image has already been added to the database.
+    [nummatches] = find([struct_data.imgname] == str_imgfilename);
+        % ...If match found
+        
+        % ... If match not found... process the image for the first time
+        [img_output] = firstprocimg(img_inputimg);
+    
+else    
+    % Part of code to be executed if no Data.mat database exists...
+    
+    % ... Process the img for the first time
+    [img_output] = firstprocimg(img_inputimg);
+    
+    % ... Copy the data
+    struct_data = img_output;
+    save(str_datafilename, 'struct_data');
+    
+    % ... Now let the user perform the forced choice experiments.
+    
+    
 end
 
 
@@ -145,5 +169,39 @@ global str_username;
 
 % Copy contents of the edit box.
 str_username = get(handles.edit1,'String');
+
+function [img_output] = firstprocimg (img_input)
+
+global str_imgfilename;
+    
+% ... Remove image gain.
+img_gaincorrected = img_input/54;
+% ... Denoise image
+img_denoised = func_denoise_dw2d(img_gaincorrected);
+img_double = double(img_denoised);
+% ... Find all local peaks in the image
+img_peakpositions = findpeaks2D(img_double, 3, 1);
+% ... Filter the peaks by the criterion below 
+[int_linearindices] = find(img_peakpositions == 1  & img_double > 450);
+[int_R, int_C] = find(img_peakpositions == 1  & img_double > 450);
+img_peakpositions = zeros(size(img_peakpositions));
+img_peakpositions(int_linearindices) = 1;
+% ... Grade these peak positions
+img_grade = gradepeaks2D(img_double, img_peakpositions, 3, 11);
+
+% ... Load the data structure
+Data = [];
+for k = 1:length(int_linearindices)
+    Data(k).img = str_imgfilename;
+    Data(k).peak = sum(img_grade(int_R(k), int_C(k), :));
+    assert(length(img_grade(int_R(k), int_C(k), :)) == 5, 'Length mismatch in firstprocimg');
+    Data(k).r = int_R(k);
+    Data(k).c = int_C(k);
+    Data(k).ispeak = 1;
+end
+
+img_output = Data;
+
+
 
 
