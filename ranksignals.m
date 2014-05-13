@@ -138,7 +138,7 @@ else
     save(str_datafilename, 'struct_data');
     
     % ... Now let the user perform the forced choice experiments.
-    
+    [struct_output] = performforcedchoice (struct_data)
     
     
 end
@@ -179,8 +179,11 @@ function [struct_output] = performforcedchoice (struct_input)
 % Perform forced choice by ...
 % ... Randomly select a high SNR datapoint.
 [int_matches] = find([struct_input.ispeak] == 1);
+struct_highSNR = struct_input(int_matches);
 
 % ... Randomly select a low SNR datapoint.
+[int_matches] = find([struct_input.ispeak] == 0);
+struct_lowSNR = struct_input(int_matches);
 
 function [img_output] = firstprocimg (img_input)
 
@@ -196,15 +199,15 @@ img_peakpositions = findpeaks2D(img_double, 3, 1);
 % ... Filter the peaks by the criterion below
 
 % ...... First for the high peaks / signals
-[int_linearindices_high] = find(img_peakpositions == 1  & img_double > 450);
-[int_R_high, int_C_high] = find(img_peakpositions == 1  & img_double > 450);
+[int_linearindices_high] = find(img_peakpositions == 1  & img_double > 550); % SET to 450
+[int_R_high, int_C_high] = find(img_peakpositions == 1  & img_double > 550);
 img_peakpositions_high = zeros(size(img_peakpositions));
 img_peakpositions_high(int_linearindices_high) = 1;
 img_grade_high = gradepeaks2D(img_double, img_peakpositions_high, 3, 11);
 
 % ...... Then for the low peaks / signals
-[int_linearindices_low] = find(img_peakpositions == 1  & img_double < 350 & img_double > 300);
-[int_R_low, int_C_low] = find(img_peakpositions == 1  & img_double < 350 & img_double > 300);
+[int_linearindices_low] = find(img_peakpositions == 1  & img_double < 350 & img_double > 340); % SET to 300
+[int_R_low, int_C_low] = find(img_peakpositions == 1  & img_double < 350 & img_double > 340);
 img_peakpositions_low = zeros(size(img_peakpositions));
 img_peakpositions_low(int_linearindices_low) = 1;
 img_grade_low = gradepeaks2D(img_double, img_peakpositions_low, 3, 11);
@@ -224,14 +227,15 @@ for k = 1:length(int_linearindices_high)
     Data(k).ispeak = 1;
 end
 
+
 int_offset = length(Data);
-for k = int_offset+1 : int_offset+length(int_linearindices_low)
-    Data(k).img = str_imgfilename;
-    Data(k).peak = sum(img_grade_low(int_R_low(k), int_C_low(k), :));
+for k = 1 : length(int_linearindices_low)
+    Data(k+int_offset).img = str_imgfilename;
+    Data(k+int_offset).peak = sum(img_grade_low(int_R_low(k), int_C_low(k), :));
     assert(length(img_grade_low(int_R_low(k), int_C_low(k), :)) == 5, 'Length mismatch in firstprocimg');
-    Data(k).r = int_R_low(k);
-    Data(k).c = int_C_low(k);
-    Data(k).ispeak = 0;
+    Data(k+int_offset).r = int_R_low(k);
+    Data(k+int_offset).c = int_C_low(k);
+    Data(k+int_offset).ispeak = 0;
 end
 
 img_output = Data;
