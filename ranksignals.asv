@@ -22,7 +22,7 @@ function varargout = ranksignals(varargin)
 
 % Edit the above text to modify the response to help ranksignals
 
-% Last Modified by GUIDE v2.5 13-May-2014 13:25:23
+% Last Modified by GUIDE v2.5 13-May-2014 14:04:05
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -43,13 +43,11 @@ else
 end
 % End initialization code - DO NOT EDIT
 
-global vvdatafilename;
-global vvresultsfilename;
+global str_datafilename;
+global str_resultsfilename;
 
-vvdatafilename = 'Data.mat';
-vvresultsfilename = 'Results.mat';
-
-exist(vvdatafilename, 'file');
+str_datafilename = 'Data.mat';
+str_resultsfilename = 'Results.mat';
 
 % --- Executes just before ranksignals is made visible.
 function ranksignals_OpeningFcn(hObject, eventdata, handles, varargin)
@@ -83,3 +81,69 @@ function varargout = ranksignals_OutputFcn(hObject, eventdata, handles)
 
 % Get default command line output from handles structure
 varargout{1} = handles.output;
+
+
+% --- Executes on button press in pushbutton1.
+function pushbutton1_Callback(hObject, eventdata, handles)
+
+global str_datafilename;
+global str_resultsfilename;
+global str_imgfilename;
+global str_imgfilepath;
+global img_inputimg;
+global str_username;
+global struct_data;
+
+% Get file info from the user
+[FILENAME, PATHNAME, FILTERINDEX] = uigetfile();
+str_imgfilename = FILENAME;
+str_imgfilepath = PATHNAME;
+
+% Read img file
+img_inputimg = imread([str_imgfilepath str_imgfilename]);
+
+% Load the Data file
+if exists(str_datafilename, 'file')
+    % Data file exists, therefore ...
+    
+    % ... Load all the data.
+    struct_data = load(str_datafilename);
+    
+    % ... Find if the image has already been added to the database.
+    [nummatches] = find([structdata.imgname] == str_imgfilename);
+    
+    % ... 
+end
+
+
+function edit1_Callback(hObject, eventdata, handles)
+% hObject    handle to edit1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit1 as text
+%        str2double(get(hObject,'String')) returns contents of edit1 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit1_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in pushbutton2.
+function pushbutton2_Callback(hObject, eventdata, handles)
+
+global str_username;
+
+% Copy contents of the edit box.
+str_username = get(handles.edit1,'String');
+
+
