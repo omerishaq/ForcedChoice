@@ -103,6 +103,7 @@ str_imgfilepath = PATHNAME;
 
 % Read img file
 img_inputimg = imread([str_imgfilepath str_imgfilename]);
+imshow(img_inputimg, 'Parent', handles.axes1);
 
 % Load the Data file
 if exist(str_datafilename, 'file')
@@ -172,6 +173,14 @@ global str_username;
 
 % Copy contents of the edit box.
 str_username = get(handles.edit1,'String');
+
+function [struct_output] = performforcedchoice (struct_input)
+
+% Perform forced choice by ...
+% ... Randomly select a high SNR datapoint.
+[int_matches] = find([struct_input.ispeak] == 1);
+
+% ... Randomly select a low SNR datapoint.
 
 function [img_output] = firstprocimg (img_input)
 
