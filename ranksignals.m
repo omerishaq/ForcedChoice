@@ -101,6 +101,12 @@ global struct_data;
 global f_BGratio;
 f_BGratio = 0.6;
 
+global int_samples;
+global int_samplescounter;
+
+int_samples = 100;
+int_samplescounter = 1;
+
 global struct_UP;
 global struct_DOWN;
 
@@ -351,18 +357,36 @@ function [] = loadnext (handles)
 
 function [struct_H, struct_L] = performforcedchoice (struct_input)
 
+global int_samples;
+global int_samplescounter;
+
 % Perform forced choice by ...
+
 % ... Randomly select a high SNR datapoint.
 [int_matches] = find([struct_input.ispeak] == 1);
 struct_highSNR = struct_input(int_matches);
-int_temp1 = round(rand * length(int_matches));
+
+lenH = length(int_matches); 
+ratioH = lenH / int_samples;
+indicesH = floor([1 : ratioH : lenH]);
+
+int_temp1 = indicesH(int_samplescounter);
 struct_H = struct_highSNR(int_temp1);
+
 
 % ... Randomly select a low SNR datapoint.
 [int_matches] = find([struct_input.ispeak] == 0);
 struct_lowSNR = struct_input(int_matches);
-int_temp2 = round(rand * length(int_matches));
+
+lenL = length(int_matches); 
+ratioL = lenL / int_samples;
+indicesL = floor([1 : ratioL : lenL]);
+
+int_temp2 = indicesL(int_samplescounter);
 struct_L = struct_lowSNR(int_temp2);
+
+% Increment the counter
+int_samplescounter = int_samplescounter + 1;
 
 function [img_output] = firstprocimg (img_input)
 
@@ -382,8 +406,8 @@ img_peakpositions = findpeaks2D(img_double, 3, 1);
 % ... Filter the peaks by the criterion below
 
 % ...... First for the high peaks / signals
-[int_linearindices_high] = find(img_peakpositions == 1 & img_double > 500*54); % SET to 450
-[int_R_high, int_C_high] = find(img_peakpositions == 1 & img_double > 500*54);
+[int_linearindices_high] = find(img_peakpositions == 1 & img_double > 400*54); % SET to 450
+[int_R_high, int_C_high] = find(img_peakpositions == 1 & img_double > 400*54);
 img_peakpositions_high = zeros(size(img_peakpositions));
 img_peakpositions_high(int_linearindices_high) = 1;
 img_grade_high = gradepeaks2D(img_double, img_peakpositions_high, 3, 11);
@@ -420,6 +444,10 @@ limit = round(length(Data) * f_BGratio);
 for k = 1:limit
     Data(k).ispeak = 0;
 end
+
+% Reflip the data so that the data is ordered in ascending order of the
+% 'peak' field of the 'Data' structure.
+Data = fliplr(Data);
 
 %{
 % int_offset = length(Data);
