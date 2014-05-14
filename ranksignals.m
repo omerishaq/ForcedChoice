@@ -108,7 +108,8 @@ str_imgfilepath = PATHNAME;
 
 % Read img file
 img_inputimg = imread([str_imgfilepath str_imgfilename]);
-imshow(img_inputimg, 'Parent', handles.axes1);
+% imshow(img_inputimg, 'Parent', handles.axes1);
+imshow(img_inputimg, [prctile(double(img_inputimg(:)),1), prctile(double(img_inputimg(:)),99)], 'Parent', handles.axes1);
 
 % Load the Data file
 if exist(str_datafilename, 'file')
@@ -319,7 +320,8 @@ function [] = loadnext (handles)
         struct_DOWN = struct_H;
     end
     
-    imshow(img_inputimg, 'Parent', handles.axes1);
+    imshow(img_inputimg, [prctile(double(img_inputimg(:)),1), prctile(double(img_inputimg(:)),99)], 'Parent', handles.axes1);
+    
     
     axes(handles.axes1) 
     curAxisProps=axis;
@@ -376,12 +378,13 @@ img_peakpositions = findpeaks2D(img_double, 3, 1);
 % ... Filter the peaks by the criterion below
 
 % ...... First for the high peaks / signals
-[int_linearindices_high] = find(img_peakpositions == 1  & img_double > 550); % SET to 450
-[int_R_high, int_C_high] = find(img_peakpositions == 1  & img_double > 550);
+[int_linearindices_high] = find(img_peakpositions == 1 & img_double > 450*54); % SET to 450
+[int_R_high, int_C_high] = find(img_peakpositions == 1 & img_double > 450*54);
 img_peakpositions_high = zeros(size(img_peakpositions));
 img_peakpositions_high(int_linearindices_high) = 1;
 img_grade_high = gradepeaks2D(img_double, img_peakpositions_high, 3, 11);
 
+%{
 % ...... Then for the low peaks / signals
 % [int_linearindices_low] = find(img_peakpositions == 1  & img_double < 350 & img_double > 340); % SET to 300
 % [int_R_low, int_C_low] = find(img_peakpositions == 1  & img_double < 350 & img_double > 340);
@@ -394,6 +397,7 @@ img_grade_high = gradepeaks2D(img_double, img_peakpositions_high, 3, 11);
 
 % ... Load the data structure with img name, peak fitness, rows and columns
 % ... as well as whether it is treated as a peak or not.
+%}
 
 Data = [];
 for k = 1:length(int_linearindices_high)
@@ -405,6 +409,7 @@ for k = 1:length(int_linearindices_high)
     Data(k).ispeak = 1;
 end
 
+%{
 % int_offset = length(Data);
 % for k = 1 : length(int_linearindices_low)
 %     Data(k+int_offset).img = str_imgfilename;
@@ -414,6 +419,7 @@ end
 %     Data(k+int_offset).c = int_C_low(k);
 %     Data(k+int_offset).ispeak = 0;
 % end
+%}
 
 img_output = Data;
 

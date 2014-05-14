@@ -51,7 +51,7 @@ for i = 1:length(R)
 %             Diff = Diff./Normalization;
             gradeimg(y,x,k) = sum(Diff(:));
         catch
-            gradeimg(y,x,:) = 0;
+            gradeimg(y,x,:) = 1e15;
             break
         end
     
