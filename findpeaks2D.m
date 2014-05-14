@@ -17,7 +17,7 @@ sxstop = double(kernelsize)/2-0.5; sxstop = sx - int32(sxstop);
 offset = int32(double(kernelsize)/2-0.5);
 
 for y = systart : systop 
-    disp(y);
+%   disp(y);
     for x = sxstart : sxstop
         if img(y,x) > 75
             test = 1;

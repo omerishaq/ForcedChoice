@@ -376,8 +376,8 @@ img_peakpositions = findpeaks2D(img_double, 3, 1);
 % ... Filter the peaks by the criterion below
 
 % ...... First for the high peaks / signals
-[int_linearindices_high] = find(img_peakpositions == 1  & img_double > 550); % SET to 450
-[int_R_high, int_C_high] = find(img_peakpositions == 1  & img_double > 550);
+[int_linearindices_high] = find(img_peakpositions == 1  & img_double > 300); % SET to 450
+[int_R_high, int_C_high] = find(img_peakpositions == 1  & img_double > 300);
 img_peakpositions_high = zeros(size(img_peakpositions));
 img_peakpositions_high(int_linearindices_high) = 1;
 img_grade_high = gradepeaks2D(img_double, img_peakpositions_high, 3, 11);
