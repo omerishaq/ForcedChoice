@@ -242,7 +242,7 @@ else
         struct_UP = struct_L;
         struct_DOWN = struct_H;
     end
-    
+    colormap(jet);
     axes(handles.axes1) 
     curAxisProps=axis;
     rectangle('Position',[struct_UP.c-6,struct_UP.r-6,13,13],'EdgeColor','r');
