@@ -98,6 +98,9 @@ global img_inputimg;
 global str_username;
 global struct_data;
 
+global f_BGratio;
+f_BGratio = 0.6;
+
 global struct_UP;
 global struct_DOWN;
 
@@ -364,6 +367,7 @@ struct_L = struct_lowSNR(int_temp2);
 function [img_output] = firstprocimg (img_input)
 
 global str_imgfilename;
+global f_BGratio;
     
 % ... Remove image gain. 
 % img_gaincorrected = img_input/54; 
@@ -378,8 +382,8 @@ img_peakpositions = findpeaks2D(img_double, 3, 1);
 % ... Filter the peaks by the criterion below
 
 % ...... First for the high peaks / signals
-[int_linearindices_high] = find(img_peakpositions == 1 & img_double > 450*54); % SET to 450
-[int_R_high, int_C_high] = find(img_peakpositions == 1 & img_double > 450*54);
+[int_linearindices_high] = find(img_peakpositions == 1 & img_double > 500*54); % SET to 450
+[int_R_high, int_C_high] = find(img_peakpositions == 1 & img_double > 500*54);
 img_peakpositions_high = zeros(size(img_peakpositions));
 img_peakpositions_high(int_linearindices_high) = 1;
 img_grade_high = gradepeaks2D(img_double, img_peakpositions_high, 3, 11);
@@ -407,6 +411,14 @@ for k = 1:length(int_linearindices_high)
     Data(k).r = int_R_high(k);
     Data(k).c = int_C_high(k);
     Data(k).ispeak = 1;
+end
+
+NestedData = (nestedSortStruct(Data, 'peak'));
+Data = fliplr(NestedData);
+limit = round(length(Data) * f_BGratio);
+
+for k = 1:limit
+    Data(k).ispeak = 0;
 end
 
 %{
