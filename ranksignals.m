@@ -22,7 +22,7 @@ function varargout = ranksignals(varargin)
 
 % Edit the above text to modify the response to help ranksignals
 
-% Last Modified by GUIDE v2.5 13-May-2014 16:42:17
+% Last Modified by GUIDE v2.5 14-May-2014 01:07:18
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -57,7 +57,9 @@ function ranksignals_OpeningFcn(hObject, eventdata, handles, varargin)
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to ranksignals (see VARARGIN)
 
-axis off;
+axis (handles.axes1, 'off');
+axis (handles.axes2, 'off');
+axis (handles.axes3, 'off');
 
 % Choose default command line output for ranksignals
 handles.output = hObject;
@@ -96,6 +98,9 @@ global img_inputimg;
 global str_username;
 global struct_data;
 
+global struct_UP;
+global struct_DOWN;
+
 % Get file info from the user
 [FILENAME, PATHNAME, FILTERINDEX] = uigetfile();
 str_imgfilename = FILENAME;
@@ -110,22 +115,111 @@ if exist(str_datafilename, 'file')
     % Data file exists, therefore ...
     
     % ... Load all the data.
-    struct_data = load(str_datafilename);
-    
-    % THIS LINE SHOULD BE REMOVED AFTER TESTING
-    % THIS LINE SHOULD BE REMOVED AFTER TESTING
-    % THIS LINE SHOULD BE REMOVED AFTER TESTING
-    struct_data = struct_data.Data; 
-    % THIS LINE SHOULD BE REMOVED AFTER TESTING
-    % THIS LINE SHOULD BE REMOVED AFTER TESTING
-    % THIS LINE SHOULD BE REMOVED AFTER TESTING
+    temp_data = load(str_datafilename);
+%     struct_data = temp_data.struct_data;
     
     % ... Find if the image has already been added to the database.
-    [nummatches] = find([struct_data.imgname] == str_imgfilename);
-        % ...If match found
+    matchf = 0;
+    for i = 1:length(temp_data.struct_data)
+        if strcmp(temp_data.struct_data(i).img, str_imgfilename);
+            matchf = 1;
+            break
+        end
+    end
+    
+    % ...If match found
+    if matchf == 1
+        struct_data = [];
+        for i = 1:length(temp_data.struct_data)
+            if strcmp(temp_data.struct_data(i).img, str_imgfilename);
+                struct_data = [struct_data temp_data.struct_data(i)];
+            end
+        end
         
-        % ... If match not found... process the image for the first time
+        % ... Now let the user perform the forced choice experiments.
+        [struct_H, struct_L] = performforcedchoice (struct_data)
+
+        % Flip the data if required
+        if rand > 0.5
+            struct_UP = struct_H;
+            struct_DOWN = struct_L;
+        else
+            struct_UP = struct_L;
+            struct_DOWN = struct_H;
+        end
+
+        axes(handles.axes1) 
+        curAxisProps=axis;
+        rectangle('Position',[struct_UP.c-6,struct_UP.r-6,13,13],'EdgeColor','r');
+        axis(curAxisProps)
+
+        axes(handles.axes1) 
+        curAxisProps=axis;
+        rectangle('Position',[struct_DOWN.c-6,struct_DOWN.r-6,13,13],'EdgeColor','g');
+        axis(curAxisProps)
+
+        imshow(img_inputimg(struct_UP.r-3:struct_UP.r+3, struct_UP.c-3:struct_UP.c+3), 'Parent', handles.axes2);
+        imshow(img_inputimg(struct_DOWN.r-3:struct_DOWN.r+3, struct_DOWN.c-3:struct_DOWN.c+3), 'Parent', handles.axes3);
+
+        axes(handles.axes2) 
+        curAxisProps=axis;
+        rectangle('Position',[1,1,6,6],'EdgeColor','r');
+        axis(curAxisProps)
+
+        axes(handles.axes3) 
+        curAxisProps=axis;
+        rectangle('Position',[1,1,6,6],'EdgeColor','g');
+        axis(curAxisProps)
+
+ 
+        
+        
+    end
+        
+    % ... If match not found... process the image for the first time
+    if matchf == 0
         [img_output] = firstprocimg(img_inputimg);
+        struct_data = img_output;
+
+        % ... Now let the user perform the forced choice experiments.
+        [struct_H, struct_L] = performforcedchoice (struct_data)
+
+        % Flip the data if required
+        if rand > 0.5
+            struct_UP = struct_H;
+            struct_DOWN = struct_L;
+        else
+            struct_UP = struct_L;
+            struct_DOWN = struct_H;
+        end
+
+        axes(handles.axes1) 
+        curAxisProps=axis;
+        rectangle('Position',[struct_UP.c-6,struct_UP.r-6,13,13],'EdgeColor','r');
+        axis(curAxisProps)
+
+        axes(handles.axes1) 
+        curAxisProps=axis;
+        rectangle('Position',[struct_DOWN.c-6,struct_DOWN.r-6,13,13],'EdgeColor','g');
+        axis(curAxisProps)
+
+        imshow(img_inputimg(struct_UP.r-3:struct_UP.r+3, struct_UP.c-3:struct_UP.c+3), 'Parent', handles.axes2);
+        imshow(img_inputimg(struct_DOWN.r-3:struct_DOWN.r+3, struct_DOWN.c-3:struct_DOWN.c+3), 'Parent', handles.axes3);
+
+        axes(handles.axes2) 
+        curAxisProps=axis;
+        rectangle('Position',[1,1,6,6],'EdgeColor','r');
+        axis(curAxisProps)
+
+        axes(handles.axes3) 
+        curAxisProps=axis;
+        rectangle('Position',[1,1,6,6],'EdgeColor','g');
+        axis(curAxisProps)
+
+        temp_data = load(str_datafilename);
+        struct_data = [temp_data.struct_data struct_data];
+        save(str_datafilename, 'struct_data');
+    end
     
 else    
     % Part of code to be executed if no Data.mat database exists...
@@ -138,9 +232,40 @@ else
     save(str_datafilename, 'struct_data');
     
     % ... Now let the user perform the forced choice experiments.
-    [struct_output] = performforcedchoice (struct_data)
+    [struct_H, struct_L] = performforcedchoice (struct_data)
     
+    % Flip the data if required
+    if rand > 0.5
+        struct_UP = struct_H;
+        struct_DOWN = struct_L;
+    else
+        struct_UP = struct_L;
+        struct_DOWN = struct_H;
+    end
     
+    axes(handles.axes1) 
+    curAxisProps=axis;
+    rectangle('Position',[struct_UP.c-6,struct_UP.r-6,13,13],'EdgeColor','r');
+    axis(curAxisProps)
+    
+    axes(handles.axes1) 
+    curAxisProps=axis;
+    rectangle('Position',[struct_DOWN.c-6,struct_DOWN.r-6,13,13],'EdgeColor','g');
+    axis(curAxisProps)
+    
+    imshow(img_inputimg(struct_UP.r-3:struct_UP.r+3, struct_UP.c-3:struct_UP.c+3), 'Parent', handles.axes2);
+    imshow(img_inputimg(struct_DOWN.r-3:struct_DOWN.r+3, struct_DOWN.c-3:struct_DOWN.c+3), 'Parent', handles.axes3);
+    
+    axes(handles.axes2) 
+    curAxisProps=axis;
+    rectangle('Position',[1,1,6,6],'EdgeColor','r');
+    axis(curAxisProps)
+    
+    axes(handles.axes3) 
+    curAxisProps=axis;
+    rectangle('Position',[1,1,6,6],'EdgeColor','g');
+    axis(curAxisProps)
+        
 end
 
 
@@ -173,17 +298,66 @@ global str_username;
 
 % Copy contents of the edit box.
 str_username = get(handles.edit1,'String');
+set(handles.edit1,'Enable','off')
 
-function [struct_output] = performforcedchoice (struct_input)
+function [] = loadnext (handles)
+
+    global struct_data;
+    global struct_UP;
+    global struct_DOWN;
+    global img_inputimg;
+    
+    % ... Now let the user perform the forced choice experiments.
+    [struct_H, struct_L] = performforcedchoice (struct_data)
+    
+    % Flip the data if required
+    if rand > 0.5
+        struct_UP = struct_H;
+        struct_DOWN = struct_L;
+    else
+        struct_UP = struct_L;
+        struct_DOWN = struct_H;
+    end
+    
+    imshow(img_inputimg, 'Parent', handles.axes1);
+    
+    axes(handles.axes1) 
+    curAxisProps=axis;
+    rectangle('Position',[struct_UP.c-6,struct_UP.r-6,13,13],'EdgeColor','r');
+    axis(curAxisProps)
+    
+    axes(handles.axes1) 
+    curAxisProps=axis;
+    rectangle('Position',[struct_DOWN.c-6,struct_DOWN.r-6,13,13],'EdgeColor','g');
+    axis(curAxisProps)
+    
+    imshow(img_inputimg(struct_UP.r-3:struct_UP.r+3, struct_UP.c-3:struct_UP.c+3), 'Parent', handles.axes2);
+    imshow(img_inputimg(struct_DOWN.r-3:struct_DOWN.r+3, struct_DOWN.c-3:struct_DOWN.c+3), 'Parent', handles.axes3);
+    
+    axes(handles.axes2) 
+    curAxisProps=axis;
+    rectangle('Position',[1,1,6,6],'EdgeColor','r');
+    axis(curAxisProps)
+    
+    axes(handles.axes3) 
+    curAxisProps=axis;
+    rectangle('Position',[1,1,6,6],'EdgeColor','g');
+    axis(curAxisProps)
+
+function [struct_H, struct_L] = performforcedchoice (struct_input)
 
 % Perform forced choice by ...
 % ... Randomly select a high SNR datapoint.
 [int_matches] = find([struct_input.ispeak] == 1);
 struct_highSNR = struct_input(int_matches);
+int_temp1 = round(rand * length(int_matches));
+struct_H = struct_highSNR(int_temp1);
 
 % ... Randomly select a low SNR datapoint.
 [int_matches] = find([struct_input.ispeak] == 0);
 struct_lowSNR = struct_input(int_matches);
+int_temp2 = round(rand * length(int_matches));
+struct_L = struct_lowSNR(int_temp2);
 
 function [img_output] = firstprocimg (img_input)
 
@@ -199,8 +373,8 @@ img_peakpositions = findpeaks2D(img_double, 3, 1);
 % ... Filter the peaks by the criterion below
 
 % ...... First for the high peaks / signals
-[int_linearindices_high] = find(img_peakpositions == 1  & img_double > 550); % SET to 450
-[int_R_high, int_C_high] = find(img_peakpositions == 1  & img_double > 550);
+[int_linearindices_high] = find(img_peakpositions == 1  & img_double > 650); % SET to 450
+[int_R_high, int_C_high] = find(img_peakpositions == 1  & img_double > 650);
 img_peakpositions_high = zeros(size(img_peakpositions));
 img_peakpositions_high(int_linearindices_high) = 1;
 img_grade_high = gradepeaks2D(img_double, img_peakpositions_high, 3, 11);
@@ -239,3 +413,77 @@ for k = 1 : length(int_linearindices_low)
 end
 
 img_output = Data;
+
+
+% --- Executes on button press in pushbutton3.
+function pushbutton3_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+global struct_UP;
+global struct_DOWN;
+global str_imgfilename;
+global str_username;
+global str_resultsfilename;
+
+struct_record.img = str_imgfilename;
+struct_record.user = str_username;
+
+if struct_UP.ispeak == 1
+    struct_record.peak = 1;
+    struct_record.r = struct_UP.r;
+    struct_record.c = struct_UP.c;
+else
+    struct_record.peak = 0;
+    struct_record.r = struct_DOWN.r;
+    struct_record.c = struct_DOWN.c;
+end
+
+Records = load(str_resultsfilename);
+ilength = length(Records.Records);
+Records.Records(ilength + 1).peak = struct_record.peak;
+Records.Records(ilength + 1).r = struct_record.r;
+Records.Records(ilength + 1).c = struct_record.c;
+Records.Records(ilength + 1).user = struct_record.user;
+Records.Records(ilength + 1).img = struct_record.img;
+save(str_resultsfilename, 'Records');
+
+loadnext(handles);
+
+
+% --- Executes on button press in pushbutton4.
+function pushbutton4_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton4 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+global struct_UP;
+global struct_DOWN;
+global str_imgfilename;
+global str_username;
+global str_resultsfilename;
+
+struct_record.img = str_imgfilename;
+struct_record.user = str_username;
+
+if struct_DOWN.ispeak == 1
+    struct_record.peak = 1;
+    struct_record.r = struct_DOWN.r;
+    struct_record.c = struct_DOWN.c;
+else
+    struct_record.peak = 0;
+    struct_record.r = struct_UP.r;
+    struct_record.c = struct_UP.c;
+end
+
+Records = load(str_resultsfilename);
+ilength = length(Records.Records);
+Records.Records(ilength + 1).peak = struct_record.peak;
+Records.Records(ilength + 1).r = struct_record.r;
+Records.Records(ilength + 1).c = struct_record.c;
+Records.Records(ilength + 1).user = struct_record.user;
+Records.Records(ilength + 1).img = struct_record.img;
+save(str_resultsfilename, 'Records');
+
+loadnext(handles);
