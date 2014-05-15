@@ -117,8 +117,7 @@ str_imgfilepath = PATHNAME;
 
 % Read img file
 img_inputimg = imread([str_imgfilepath str_imgfilename]);
-% imshow(img_inputimg, 'Parent', handles.axes1);
-imshow(img_inputimg, [prctile(double(img_inputimg(:)),1), prctile(double(img_inputimg(:)),99)], 'Parent', handles.axes1);
+updateMainScreen(handles);
 
 % Load the Data file
 if exist(str_datafilename, 'file')
@@ -251,7 +250,7 @@ function [] = loadnext (handles)
     global img_inputimg;
     
     % ... Now let the user perform the forced choice experiments.
-    [struct_H, struct_L] = performforcedchoice (struct_data)
+    [struct_H, struct_L] = performforcedchoice (struct_data);
     
     % Flip the data if required
     if rand > 0.5
@@ -262,7 +261,7 @@ function [] = loadnext (handles)
         struct_DOWN = struct_H;
     end
     
-    imshow(img_inputimg, [prctile(double(img_inputimg(:)),1), prctile(double(img_inputimg(:)),99)], 'Parent', handles.axes1);
+    updateMainScreen(handles);
     updatescreens(handles);
     
 function [] = updatescreens (handles) 
@@ -475,3 +474,9 @@ Records(ilength + 1).img = struct_record.img;
 save(str_resultsfilename, 'Records');
 
 loadnext(handles);
+
+function [] = updateMainScreen(handles)
+
+global img_inputimg;
+imshow(img_inputimg, 'Parent', handles.axes1);
+% imshow(img_inputimg, [prctile(double(img_inputimg(:)),1), prctile(double(img_inputimg(:)),99)], 'Parent', handles.axes1);
