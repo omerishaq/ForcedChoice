@@ -428,12 +428,13 @@ else
 end
 
 Records = load(str_resultsfilename);
-ilength = length(Records.Records);
-Records.Records(ilength + 1).peak = struct_record.peak;
-Records.Records(ilength + 1).r = struct_record.r;
-Records.Records(ilength + 1).c = struct_record.c;
-Records.Records(ilength + 1).user = struct_record.user;
-Records.Records(ilength + 1).img = struct_record.img;
+Records = Records.Records;
+ilength = length(Records);
+Records(ilength + 1).peak = struct_record.peak;
+Records(ilength + 1).r = struct_record.r;
+Records(ilength + 1).c = struct_record.c;
+Records(ilength + 1).user = struct_record.user;
+Records(ilength + 1).img = struct_record.img;
 save(str_resultsfilename, 'Records');
 
 loadnext(handles);
@@ -464,12 +465,13 @@ else
 end
 
 Records = load(str_resultsfilename);
-ilength = length(Records.Records);
-Records.Records(ilength + 1).peak = struct_record.peak;
-Records.Records(ilength + 1).r = struct_record.r;
-Records.Records(ilength + 1).c = struct_record.c;
-Records.Records(ilength + 1).user = struct_record.user;
-Records.Records(ilength + 1).img = struct_record.img;
+Records = Records.Records;
+ilength = length(Records);
+Records(ilength + 1).peak = struct_record.peak;
+Records(ilength + 1).r = struct_record.r;
+Records(ilength + 1).c = struct_record.c;
+Records(ilength + 1).user = struct_record.user;
+Records(ilength + 1).img = struct_record.img;
 save(str_resultsfilename, 'Records');
 
 loadnext(handles);

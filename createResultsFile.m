@@ -13,7 +13,8 @@ else
     Records.c       = 0;
     Records.user    = 'test user';
     Records.img     = 'test user';
+    save Results.mat Records
 end
 
-save Results.mat Records
+
 
