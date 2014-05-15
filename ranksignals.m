@@ -158,32 +158,8 @@ if exist(str_datafilename, 'file')
             struct_DOWN = struct_H;
         end
 
-        axes(handles.axes1) 
-        curAxisProps=axis;
-        rectangle('Position',[struct_UP.c-6,struct_UP.r-6,13,13],'EdgeColor','r');
-        axis(curAxisProps)
+        updatescreens(handles);
 
-        axes(handles.axes1) 
-        curAxisProps=axis;
-        rectangle('Position',[struct_DOWN.c-6,struct_DOWN.r-6,13,13],'EdgeColor','g');
-        axis(curAxisProps)
-
-        imshow(img_inputimg(struct_UP.r-3:struct_UP.r+3, struct_UP.c-3:struct_UP.c+3), 'Parent', handles.axes2);
-        imshow(img_inputimg(struct_DOWN.r-3:struct_DOWN.r+3, struct_DOWN.c-3:struct_DOWN.c+3), 'Parent', handles.axes3);
-
-        axes(handles.axes2) 
-        curAxisProps=axis;
-        rectangle('Position',[1,1,6,6],'EdgeColor','r');
-        axis(curAxisProps)
-
-        axes(handles.axes3) 
-        curAxisProps=axis;
-        rectangle('Position',[1,1,6,6],'EdgeColor','g');
-        axis(curAxisProps)
-
- 
-        
-        
     end
         
     % ... If match not found... process the image for the first time
@@ -203,28 +179,7 @@ if exist(str_datafilename, 'file')
             struct_DOWN = struct_H;
         end
 
-        axes(handles.axes1) 
-        curAxisProps=axis;
-        rectangle('Position',[struct_UP.c-6,struct_UP.r-6,13,13],'EdgeColor','r');
-        axis(curAxisProps)
-
-        axes(handles.axes1) 
-        curAxisProps=axis;
-        rectangle('Position',[struct_DOWN.c-6,struct_DOWN.r-6,13,13],'EdgeColor','g');
-        axis(curAxisProps)
-
-        imshow(img_inputimg(struct_UP.r-3:struct_UP.r+3, struct_UP.c-3:struct_UP.c+3), 'Parent', handles.axes2);
-        imshow(img_inputimg(struct_DOWN.r-3:struct_DOWN.r+3, struct_DOWN.c-3:struct_DOWN.c+3), 'Parent', handles.axes3);
-
-        axes(handles.axes2) 
-        curAxisProps=axis;
-        rectangle('Position',[1,1,6,6],'EdgeColor','r');
-        axis(curAxisProps)
-
-        axes(handles.axes3) 
-        curAxisProps=axis;
-        rectangle('Position',[1,1,6,6],'EdgeColor','g');
-        axis(curAxisProps)
+        updatescreens(handles);
 
         temp_data = load(str_datafilename);
         struct_data = [temp_data.struct_data struct_data];
@@ -252,29 +207,8 @@ else
         struct_UP = struct_L;
         struct_DOWN = struct_H;
     end
-    colormap(jet);
-    axes(handles.axes1) 
-    curAxisProps=axis;
-    rectangle('Position',[struct_UP.c-6,struct_UP.r-6,13,13],'EdgeColor','r');
-    axis(curAxisProps)
-    
-    axes(handles.axes1) 
-    curAxisProps=axis;
-    rectangle('Position',[struct_DOWN.c-6,struct_DOWN.r-6,13,13],'EdgeColor','g');
-    axis(curAxisProps)
-    
-    imshow(img_inputimg(struct_UP.r-3:struct_UP.r+3, struct_UP.c-3:struct_UP.c+3), 'Parent', handles.axes2);
-    imshow(img_inputimg(struct_DOWN.r-3:struct_DOWN.r+3, struct_DOWN.c-3:struct_DOWN.c+3), 'Parent', handles.axes3);
-    
-    axes(handles.axes2) 
-    curAxisProps=axis;
-    rectangle('Position',[1,1,6,6],'EdgeColor','r');
-    axis(curAxisProps)
-    
-    axes(handles.axes3) 
-    curAxisProps=axis;
-    rectangle('Position',[1,1,6,6],'EdgeColor','g');
-    axis(curAxisProps)
+
+    updatescreens(handles);
         
 end
 
@@ -299,7 +233,6 @@ function edit1_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
 
 % --- Executes on button press in pushbutton2.
 function pushbutton2_Callback(hObject, eventdata, handles)
@@ -330,30 +263,36 @@ function [] = loadnext (handles)
     end
     
     imshow(img_inputimg, [prctile(double(img_inputimg(:)),1), prctile(double(img_inputimg(:)),99)], 'Parent', handles.axes1);
+    updatescreens(handles);
     
-    
-    axes(handles.axes1) 
-    curAxisProps=axis;
-    rectangle('Position',[struct_UP.c-6,struct_UP.r-6,13,13],'EdgeColor','r');
-    axis(curAxisProps)
-    
-    axes(handles.axes1) 
-    curAxisProps=axis;
-    rectangle('Position',[struct_DOWN.c-6,struct_DOWN.r-6,13,13],'EdgeColor','g');
-    axis(curAxisProps)
-    
-    imshow(img_inputimg(struct_UP.r-3:struct_UP.r+3, struct_UP.c-3:struct_UP.c+3), 'Parent', handles.axes2);
-    imshow(img_inputimg(struct_DOWN.r-3:struct_DOWN.r+3, struct_DOWN.c-3:struct_DOWN.c+3), 'Parent', handles.axes3);
-    
-    axes(handles.axes2) 
-    curAxisProps=axis;
-    rectangle('Position',[1,1,6,6],'EdgeColor','r');
-    axis(curAxisProps)
-    
-    axes(handles.axes3) 
-    curAxisProps=axis;
-    rectangle('Position',[1,1,6,6],'EdgeColor','g');
-    axis(curAxisProps)
+function [] = updatescreens (handles) 
+
+global struct_UP;
+global struct_DOWN;
+global img_inputimg;
+ 
+axes(handles.axes1) 
+curAxisProps=axis;
+rectangle('Position',[struct_UP.c-6,struct_UP.r-6,13,13],'EdgeColor','r');
+axis(curAxisProps)
+
+axes(handles.axes1) 
+curAxisProps=axis;
+rectangle('Position',[struct_DOWN.c-6,struct_DOWN.r-6,13,13],'EdgeColor','g');
+axis(curAxisProps)
+
+imshow(img_inputimg(struct_UP.r-3:struct_UP.r+3, struct_UP.c-3:struct_UP.c+3), 'Parent', handles.axes2);
+imshow(img_inputimg(struct_DOWN.r-3:struct_DOWN.r+3, struct_DOWN.c-3:struct_DOWN.c+3), 'Parent', handles.axes3);
+
+axes(handles.axes2) 
+curAxisProps=axis;
+rectangle('Position',[1,1,6,6],'EdgeColor','r');
+axis(curAxisProps)
+
+axes(handles.axes3) 
+curAxisProps=axis;
+rectangle('Position',[1,1,6,6],'EdgeColor','g');
+axis(curAxisProps)
 
 function [struct_H, struct_L] = performforcedchoice (struct_input)
 
@@ -406,8 +345,8 @@ img_peakpositions = findpeaks2D(img_double, 3, 1);
 % ... Filter the peaks by the criterion below
 
 % ...... First for the high peaks / signals
-[int_linearindices_high] = find(img_peakpositions == 1 & img_double > 400*54); % SET to 450
-[int_R_high, int_C_high] = find(img_peakpositions == 1 & img_double > 400*54);
+[int_linearindices_high] = find(img_peakpositions == 1 & img_double > 200*54); % SET to 450
+[int_R_high, int_C_high] = find(img_peakpositions == 1 & img_double > 200*54);
 img_peakpositions_high = zeros(size(img_peakpositions));
 img_peakpositions_high(int_linearindices_high) = 1;
 img_grade_high = gradepeaks2D(img_double, img_peakpositions_high, 3, 11);
@@ -463,7 +402,6 @@ Data = fliplr(Data);
 
 img_output = Data;
 
-
 % --- Executes on button press in pushbutton3.
 function pushbutton3_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton3 (see GCBO)
@@ -499,7 +437,6 @@ Records.Records(ilength + 1).img = struct_record.img;
 save(str_resultsfilename, 'Records');
 
 loadnext(handles);
-
 
 % --- Executes on button press in pushbutton4.
 function pushbutton4_Callback(hObject, eventdata, handles)

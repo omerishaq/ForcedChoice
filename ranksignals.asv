@@ -252,7 +252,7 @@ else
         struct_UP = struct_L;
         struct_DOWN = struct_H;
     end
-    colormap(jet);
+
     axes(handles.axes1) 
     curAxisProps=axis;
     rectangle('Position',[struct_UP.c-6,struct_UP.r-6,13,13],'EdgeColor','r');
@@ -330,30 +330,38 @@ function [] = loadnext (handles)
     end
     
     imshow(img_inputimg, [prctile(double(img_inputimg(:)),1), prctile(double(img_inputimg(:)),99)], 'Parent', handles.axes1);
+    updatescreens(handles);
     
     
-    axes(handles.axes1) 
-    curAxisProps=axis;
-    rectangle('Position',[struct_UP.c-6,struct_UP.r-6,13,13],'EdgeColor','r');
-    axis(curAxisProps)
+
     
-    axes(handles.axes1) 
-    curAxisProps=axis;
-    rectangle('Position',[struct_DOWN.c-6,struct_DOWN.r-6,13,13],'EdgeColor','g');
-    axis(curAxisProps)
-    
-    imshow(img_inputimg(struct_UP.r-3:struct_UP.r+3, struct_UP.c-3:struct_UP.c+3), 'Parent', handles.axes2);
-    imshow(img_inputimg(struct_DOWN.r-3:struct_DOWN.r+3, struct_DOWN.c-3:struct_DOWN.c+3), 'Parent', handles.axes3);
-    
-    axes(handles.axes2) 
-    curAxisProps=axis;
-    rectangle('Position',[1,1,6,6],'EdgeColor','r');
-    axis(curAxisProps)
-    
-    axes(handles.axes3) 
-    curAxisProps=axis;
-    rectangle('Position',[1,1,6,6],'EdgeColor','g');
-    axis(curAxisProps)
+function [] = updatescreens (handles) 
+
+global struct_UP;
+global struct_DOWN;
+ 
+axes(handles.axes1) 
+curAxisProps=axis;
+rectangle('Position',[struct_UP.c-6,struct_UP.r-6,13,13],'EdgeColor','r');
+axis(curAxisProps)
+
+axes(handles.axes1) 
+curAxisProps=axis;
+rectangle('Position',[struct_DOWN.c-6,struct_DOWN.r-6,13,13],'EdgeColor','g');
+axis(curAxisProps)
+
+imshow(img_inputimg(struct_UP.r-3:struct_UP.r+3, struct_UP.c-3:struct_UP.c+3), 'Parent', handles.axes2);
+imshow(img_inputimg(struct_DOWN.r-3:struct_DOWN.r+3, struct_DOWN.c-3:struct_DOWN.c+3), 'Parent', handles.axes3);
+
+axes(handles.axes2) 
+curAxisProps=axis;
+rectangle('Position',[1,1,6,6],'EdgeColor','r');
+axis(curAxisProps)
+
+axes(handles.axes3) 
+curAxisProps=axis;
+rectangle('Position',[1,1,6,6],'EdgeColor','g');
+axis(curAxisProps)
 
 function [struct_H, struct_L] = performforcedchoice (struct_input)
 
@@ -370,14 +378,23 @@ lenH = length(int_matches);
 ratioH = lenH / int_samples;
 indicesH = floor([1 : ratioH : lenH]);
 
-int_temp1 = indicesH()
+int_temp1 = indicesH(int_samplescounter);
 struct_H = struct_highSNR(int_temp1);
+
 
 % ... Randomly select a low SNR datapoint.
 [int_matches] = find([struct_input.ispeak] == 0);
 struct_lowSNR = struct_input(int_matches);
-int_temp2 = round(rand * length(int_matches));
+
+lenL = length(int_matches); 
+ratioL = lenL / int_samples;
+indicesL = floor([1 : ratioL : lenL]);
+
+int_temp2 = indicesL(int_samplescounter);
 struct_L = struct_lowSNR(int_temp2);
+
+% Increment the counter
+int_samplescounter = int_samplescounter + 1;
 
 function [img_output] = firstprocimg (img_input)
 
@@ -397,8 +414,8 @@ img_peakpositions = findpeaks2D(img_double, 3, 1);
 % ... Filter the peaks by the criterion below
 
 % ...... First for the high peaks / signals
-[int_linearindices_high] = find(img_peakpositions == 1 & img_double > 500*54); % SET to 450
-[int_R_high, int_C_high] = find(img_peakpositions == 1 & img_double > 500*54);
+[int_linearindices_high] = find(img_peakpositions == 1 & img_double > 200*54); % SET to 450
+[int_R_high, int_C_high] = find(img_peakpositions == 1 & img_double > 200*54);
 img_peakpositions_high = zeros(size(img_peakpositions));
 img_peakpositions_high(int_linearindices_high) = 1;
 img_grade_high = gradepeaks2D(img_double, img_peakpositions_high, 3, 11);
