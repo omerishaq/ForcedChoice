@@ -61,6 +61,8 @@ axis (handles.axes1, 'off');
 axis (handles.axes2, 'off');
 axis (handles.axes3, 'off');
 
+addpath 'C:\Users\Omer\Documents\GitHub\UtilityFunctions'
+
 % Choose default command line output for ranksignals
 handles.output = hObject;
 
@@ -344,11 +346,15 @@ img_peakpositions = findpeaks2D(img_double, 3, 1);
 % ... Filter the peaks by the criterion below
 
 % ...... First for the high peaks / signals
-[int_linearindices_high] = find(img_peakpositions == 1 & img_double > 200*54); % SET to 450
-[int_R_high, int_C_high] = find(img_peakpositions == 1 & img_double > 200*54);
+[int_linearindices_high] = find(img_peakpositions == 1 & img_double > 300*54); % SET to 450
+[int_R_high, int_C_high] = find(img_peakpositions == 1 & img_double > 300*54);
 img_peakpositions_high = zeros(size(img_peakpositions));
 img_peakpositions_high(int_linearindices_high) = 1;
-img_grade_high = gradepeaks2D(img_double, img_peakpositions_high, 3, 11);
+
+
+% img_grade_high = gradepeaks2D(img_double, img_peakpositions_high, 3, 11);
+img_grade_high = load('gimg.mat');
+img_grade_high = img_grade_high.img_grade_high;
 
 %{
 % ...... Then for the low peaks / signals
@@ -369,16 +375,47 @@ Data = [];
 for k = 1:length(int_linearindices_high)
     Data(k).img = str_imgfilename;
     Data(k).peak = sum(img_grade_high(int_R_high(k), int_C_high(k), :));
+    Data(k).intensity = img_double(int_R_high(k), int_C_high(k))/54;
+    Data(k).negintensity = -1*img_double(int_R_high(k), int_C_high(k));
     assert(length(img_grade_high(int_R_high(k), int_C_high(k), :)) == 5, 'Length mismatch in firstprocimg');
     Data(k).r = int_R_high(k);
     Data(k).c = int_C_high(k);
     Data(k).ispeak = 1;
 end
 
-NestedData = (nestedSortStruct(Data, 'peak'));
-Data = fliplr(NestedData);
+% Rather than do a scalarization, generate a pareto front by ...
+% ... Extracting the 'peak' vector from data
+vec_peak = cat(1, Data.peak);
+% ... Extracting the 'negativeintensity' vector from data
+vec_negi = cat(1, Data.negintensity);
+mult_obj = [vec_peak vec_negi];
+
+% [ReturnData, k] = sortParetoFrontsMinimally( mult_obj );
+% 
+% % Order the data by position in the Pareto front
+% for i = 1:k-1
+%     Indices = ReturnData(i).F;
+%     if i == 1
+%         DataNew = Data(Indices);
+%     else
+%         DataNew = [DataNew Data(Indices)];
+%     end
+% end
+
+DataNew = load('DataNew.mat');
+DataNew = DataNew.DataNew;
+
+%%%% COMMENTED OUT BELOW since the data is already sorted due to the Pareto
+%%%% fronts.
+
+% NestedData = (nestedSortStruct(Data, 'peak'));  
+
+Data = fliplr(DataNew);
 limit = round(length(Data) * f_BGratio);
 
+% Code below is used to set a certain percentage of the fluorophore's
+% ispeak criterion to 0 which means they are being allocated to the
+% background.
 for k = 1:limit
     Data(k).ispeak = 0;
 end

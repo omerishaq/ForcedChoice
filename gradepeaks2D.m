@@ -18,7 +18,10 @@ for i = 1:length(R)
     
     y = R(i);
     x = C(i);
-    disp([num2str(i) '/' num2str(length(R))]);
+    if rem(i,100) == 0
+        disp([num2str(i) '/' num2str(length(R))]);
+    end
+    
     for k = 1:length(kernelsizes)
 
         offset = int32(double(kernelsizes(k))/2-0.5);
