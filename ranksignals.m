@@ -99,6 +99,9 @@ global str_imgfilepath;
 global img_inputimg;
 global str_username;
 global struct_data;
+global flag_debug;
+
+flag_debug = 1;
 
 global f_BGratio;
 f_BGratio = 0.6;
@@ -106,7 +109,7 @@ f_BGratio = 0.6;
 global int_samples;
 global int_samplescounter;
 
-int_samples = 100;
+int_samples = 200;
 int_samplescounter = 1;
 
 global struct_UP;
@@ -148,13 +151,15 @@ if exist(str_datafilename, 'file')
         end
         
         % ... Now let the user perform the forced choice experiments.
-        [struct_H, struct_L] = performforcedchoice (struct_data)
+        [struct_H, struct_L] = performforcedchoice (struct_data);
 
         % Flip the data if required
         if rand > 0.5
+            if flag_debug == 1; disp('UP'); end;
             struct_UP = struct_H;
             struct_DOWN = struct_L;
         else
+            if flag_debug == 1; disp('DOWN'); end;
             struct_UP = struct_L;
             struct_DOWN = struct_H;
         end
@@ -169,13 +174,15 @@ if exist(str_datafilename, 'file')
         struct_data = img_output;
 
         % ... Now let the user perform the forced choice experiments.
-        [struct_H, struct_L] = performforcedchoice (struct_data)
+        [struct_H, struct_L] = performforcedchoice (struct_data);
 
         % Flip the data if required
         if rand > 0.5
+            if flag_debug == 1; disp('UP'); end;
             struct_UP = struct_H;
             struct_DOWN = struct_L;
         else
+            if flag_debug == 1; disp('DOWN'); end;
             struct_UP = struct_L;
             struct_DOWN = struct_H;
         end
@@ -198,13 +205,15 @@ else
     save(str_datafilename, 'struct_data');
     
     % ... Now let the user perform the forced choice experiments.
-    [struct_H, struct_L] = performforcedchoice (struct_data)
+    [struct_H, struct_L] = performforcedchoice (struct_data);
     
     % Flip the data if required
     if rand > 0.5
+        if flag_debug == 1; disp('UP'); end;
         struct_UP = struct_H;
         struct_DOWN = struct_L;
     else
+        if flag_debug == 1; disp('DOWN'); end;
         struct_UP = struct_L;
         struct_DOWN = struct_H;
     end
@@ -245,7 +254,7 @@ str_username = get(handles.edit1,'String');
 set(handles.edit1,'Enable','off')
 
 function [] = loadnext (handles)
-
+    global flag_debug;
     global struct_data;
     global struct_UP;
     global struct_DOWN;
@@ -256,9 +265,11 @@ function [] = loadnext (handles)
     
     % Flip the data if required
     if rand > 0.5
+        if flag_debug == 1; disp('UP'); end;
         struct_UP = struct_H;
         struct_DOWN = struct_L;
     else
+        if flag_debug == 1; disp('DOWN'); end;
         struct_UP = struct_L;
         struct_DOWN = struct_H;
     end
