@@ -22,7 +22,7 @@ function varargout = ranksignals(varargin)
 
 % Edit the above text to modify the response to help ranksignals
 
-% Last Modified by GUIDE v2.5 22-May-2014 15:39:28
+% Last Modified by GUIDE v2.5 14-May-2014 01:07:18
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -563,9 +563,7 @@ set(handles.pushbutton4,'Enable','off');
 msgbox('Session finsihed for this image, please select another image','modal');
 set(handles.pushbutton1,'Enable','on');
 
-% --- Executes on button press in pushbutton_Next.
-function pushbutton_Next_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton_Next (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-loadnext(handles);
+
+
+
+
