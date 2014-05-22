@@ -92,6 +92,10 @@ varargout{1} = handles.output;
 % --- Executes on button press in pushbutton1.
 function pushbutton1_Callback(hObject, eventdata, handles)
 
+set(handles.pushbutton1,'Enable','on');
+set(handles.pushbutton3,'Enable','on');
+set(handles.pushbutton4,'Enable','on');
+
 global str_datafilename;
 global str_resultsfilename;
 global str_imgfilename;
@@ -101,10 +105,10 @@ global str_username;
 global struct_data;
 global flag_debug;
 
-flag_debug = 1;
+flag_debug = 0;
 
 global f_BGratio;
-f_BGratio = 0.6;
+f_BGratio = 0.3;
 
 global int_samples;
 global int_samplescounter;
@@ -122,6 +126,7 @@ str_imgfilepath = PATHNAME;
 
 % Read img file
 img_inputimg = imread([str_imgfilepath str_imgfilename]);
+set(handles.text1,'String',[str_imgfilepath str_imgfilename]);
 updateMainScreen(handles);
 
 % Load the Data file
@@ -254,6 +259,17 @@ str_username = get(handles.edit1,'String');
 set(handles.edit1,'Enable','off')
 
 function [] = loadnext (handles)
+
+    global int_samples;
+    global int_samplescounter;
+    
+    set(handles.text2, 'string', ['Image ' num2str(int_samplescounter) ' of ' num2str(int_samples)]);
+
+    if int_samplescounter >= int_samples
+        disableAllControls(handles);
+        return
+    end
+    
     global flag_debug;
     global struct_data;
     global struct_UP;
@@ -330,11 +346,15 @@ struct_H = struct_highSNR(int_temp1);
 struct_lowSNR = struct_input(int_matches);
 
 lenL = length(int_matches); 
-ratioL = lenL / int_samples;
-indicesL = floor([1 : ratioL : lenL]);
 
-int_temp2 = indicesL(int_samplescounter);
-struct_L = struct_lowSNR(int_temp2);
+%%% Use the code below if you want to select the signals from the
+%%% background determiniistically, i.e., similar to the way they are
+%%% selected for the foreground.
+% ratioL = lenL / int_samples;
+% indicesL = floor([1 : ratioL : lenL]);
+% int_temp2 = indicesL(int_samplescounter);
+
+struct_L = struct_lowSNR(floor(rand * lenL));
 
 % Increment the counter
 int_samplescounter = int_samplescounter + 1;
@@ -363,9 +383,9 @@ img_peakpositions_high = zeros(size(img_peakpositions));
 img_peakpositions_high(int_linearindices_high) = 1;
 
 
-% img_grade_high = gradepeaks2D(img_double, img_peakpositions_high, 3, 11);
-img_grade_high = load('gimg.mat');
-img_grade_high = img_grade_high.img_grade_high;
+img_grade_high = gradepeaks2D(img_double, img_peakpositions_high, 3, 11);
+% img_grade_high = load('gimg.mat');
+% img_grade_high = img_grade_high.img_grade_high;
 
 %{
 % ...... Then for the low peaks / signals
@@ -394,6 +414,10 @@ for k = 1:length(int_linearindices_high)
     Data(k).ispeak = 1;
 end
 
+logicalIndexOfElement = arrayfun(@(x)all(x.peak<1e14),Data);
+[Indices] = find(logicalIndexOfElement);
+Data = Data(Indices);
+
 % Rather than do a scalarization, generate a pareto front by ...
 % ... Extracting the 'peak' vector from data
 vec_peak = cat(1, Data.peak);
@@ -401,20 +425,20 @@ vec_peak = cat(1, Data.peak);
 vec_negi = cat(1, Data.negintensity);
 mult_obj = [vec_peak vec_negi];
 
-% [ReturnData, k] = sortParetoFrontsMinimally( mult_obj );
-% 
-% % Order the data by position in the Pareto front
-% for i = 1:k-1
-%     Indices = ReturnData(i).F;
-%     if i == 1
-%         DataNew = Data(Indices);
-%     else
-%         DataNew = [DataNew Data(Indices)];
-%     end
-% end
+[ReturnData, k] = sortParetoFrontsMinimally( mult_obj );
 
-DataNew = load('DataNew.mat');
-DataNew = DataNew.DataNew;
+% Order the data by position in the Pareto front
+for i = 1:k-1
+    Indices = ReturnData(i).F;
+    if i == 1
+        DataNew = Data(Indices);
+    else
+        DataNew = [DataNew Data(Indices)];
+    end
+end
+
+% DataNew = load('DataNew.mat');
+% DataNew = DataNew.DataNew;
 
 %%%% COMMENTED OUT BELOW since the data is already sorted due to the Pareto
 %%%% fronts.
@@ -528,3 +552,18 @@ function [] = updateMainScreen(handles)
 global img_inputimg;
 imshow(img_inputimg, 'Parent', handles.axes1);
 % imshow(img_inputimg, [prctile(double(img_inputimg(:)),1), prctile(double(img_inputimg(:)),99)], 'Parent', handles.axes1);
+
+function [] = disableAllControls(handles)
+
+set(handles.edit1,'Enable','off');
+set(handles.pushbutton1,'Enable','off');
+set(handles.pushbutton2,'Enable','off');
+set(handles.pushbutton3,'Enable','off');
+set(handles.pushbutton4,'Enable','off');
+msgbox('Session finsihed for this image, please select another image','modal');
+set(handles.pushbutton1,'Enable','on');
+
+
+
+
+
