@@ -108,12 +108,12 @@ global flag_debug;
 flag_debug = 0;
 
 global f_BGratio;
-f_BGratio = 0.3;
+f_BGratio = 0.2;
 
 global int_samples;
 global int_samplescounter;
 
-int_samples = 200;
+int_samples = 300;
 int_samplescounter = 1;
 
 global struct_UP;
