@@ -71,9 +71,6 @@ guidata(hObject, handles);
 
 % Check if the database file exists
 
-
-
-
 % UIWAIT makes ranksignals wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
