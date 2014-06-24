@@ -104,13 +104,15 @@ global flag_debug;
 
 flag_debug = 0;
 
+% The data was acquired at '200' samples with background size of '0.3'
+
 global f_BGratio;
-f_BGratio = 0.2;
+f_BGratio = 0.3;
 
 global int_samples;
 global int_samplescounter;
 
-int_samples = 300;
+int_samples = 200;
 int_samplescounter = 1;
 
 global struct_UP;
