@@ -406,7 +406,11 @@ for k = 1:length(int_linearindices_high)
     Data(k).img = str_imgfilename;
     Data(k).peak = sum(img_grade_high(int_R_high(k), int_C_high(k), :));
     % This is for area intensities
-    Data(k).intensity = sum(sum(img_double(int_R_high(k)-2:int_R_high(k)+2, int_C_high(k)-2:int_C_high(k)+2)/54));
+    try
+        Data(k).intensity = sum(sum(img_double(int_R_high(k)-3:int_R_high(k)+3, int_C_high(k)-3:int_C_high(k)+3)/54));
+    catch
+        
+    end
     % This is for point intensities 
     % Data(k).intensity = img_double(int_R_high(k), int_C_high(k))/54;
     Data(k).negintensity = -1*Data(k).intensity;

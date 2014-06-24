@@ -186,18 +186,17 @@ for k = 1:length(data)
     end
 end
 
+figure; hold on; imagesc(img_inputimg); colormap gray; axis image;
 for k = 1:int_number;
     
     img = [img img_inputimg(temp_data(k).r-3:temp_data(k).r+3, temp_data(k).c-3:temp_data(k).c+3);]
     img = [img ones(7,2)*2^15];
     
+    rectangle('Position',[temp_data(k).c-3, temp_data(k).r-3, 7, 7],'EdgeColor','r');
+    
 end
 
 img = img(:,1:end-3);
-
-figure; hold on; 
-imagesc(img); axis image;
-colormap gray;
 
 imwrite(img, 'latest_save.tif');
 
