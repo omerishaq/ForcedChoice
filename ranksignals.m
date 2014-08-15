@@ -447,6 +447,8 @@ end
 
 % NestedData = (nestedSortStruct(Data, 'peak'));  
 
+DataNew = DataNew(1:600);
+
 Data = fliplr(DataNew);
 limit = round(length(Data) * f_BGratio);
 

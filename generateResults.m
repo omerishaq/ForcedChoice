@@ -101,7 +101,41 @@ str_imgfilepath = PATHNAME;
 struct_data = load([str_imgfilepath str_imgfilename]);
 set(handles.text2,'String',[str_imgfilepath str_imgfilename]);
 
-
-
 % --- Executes on button press in pushbutton3.
 function pushbutton3_Callback(hObject, eventdata, handles)
+
+global str_inputimgname;
+global struct_data;
+
+Data = struct_data.Records;
+Data_Temp = [];
+
+for i = 1:length(Data)
+    if strcmp(getfield(Data, {i},'img'), str_inputimgname)
+        Data_Temp = [Data_Temp i];
+    end
+end
+Data = Data(Data_Temp);
+Cells = squeeze(struct2cell(Data));
+User_Names = unique(Cells(4,:)');
+Cells_Names = Cells(4,:);
+Peak_Details = Cells(1,:);
+
+ImageData = zeros(1,199);
+
+for k = 1:length(User_Names)
+    index = find(strcmp(Cells_Names, User_Names{k}));
+    index = index(1:199);
+    index = cell2mat(Peak_Details(index));
+    ImageData = ImageData + index;
+end
+
+figure; bar (ImageData)
+
+figure; plot(ImageData); hold on; ylim([0 10]); plot(1:199, ones(1,199)*2, 'r');
+
+
+
+
+
+
