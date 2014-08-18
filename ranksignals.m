@@ -107,7 +107,7 @@ flag_debug = 0;
 % The data was acquired at '200' samples with background size of '0.3'
 
 global f_BGratio;
-f_BGratio = 0.3;
+f_BGratio = 0.2;
 
 global int_samples;
 global int_samplescounter;
@@ -127,6 +127,12 @@ str_imgfilepath = PATHNAME;
 img_inputimg = imread([str_imgfilepath str_imgfilename]);
 set(handles.text1,'String',[str_imgfilepath str_imgfilename]);
 updateMainScreen(handles);
+
+% New code for reading a .csv file containing the signal locations from the
+% directory as the image file and with the same name as the image file.
+global f_data;
+str_tempfilename = str_imgfilename(1:end-4);
+f_data = csvread([str_imgfilepath str_tempfilename '.csv'], 1, 0);
 
 % Load the Data file
 if exist(str_datafilename, 'file')
@@ -362,6 +368,7 @@ function [img_output] = firstprocimg (img_input)
 
 global str_imgfilename;
 global f_BGratio;
+global f_data;
     
 % ... Remove image gain. 
 % img_gaincorrected = img_input/54; 
@@ -372,17 +379,17 @@ img_denoised = img_input; % directly taken from parameter since no denoising bei
 
 img_double = double(img_denoised);
 % ... Find all local peaks in the image
-img_peakpositions = findpeaks2D(img_double, 5, 1);
+%%% ... img_peakpositions = findpeaks2D(img_double, 5, 1);
 % ... Filter the peaks by the criterion below
 
 % ...... First for the high peaks / signals
-[int_linearindices_high] = find(img_peakpositions == 1 & img_double > 300*54); % SET to 450
-[int_R_high, int_C_high] = find(img_peakpositions == 1 & img_double > 300*54);
-img_peakpositions_high = zeros(size(img_peakpositions));
-img_peakpositions_high(int_linearindices_high) = 1;
+%%% ... [int_linearindices_high] = find(img_peakpositions == 1 & img_double > 300*54); % SET to 450
+%%% ... [int_R_high, int_C_high] = find(img_peakpositions == 1 & img_double > 300*54);
+%%% ... img_peakpositions_high = zeros(size(img_peakpositions));
+%%% ...img_peakpositions_high(int_linearindices_high) = 1;
 
 
-img_grade_high = gradepeaks2D(img_double, img_peakpositions_high, 3, 11);
+%%% ... img_grade_high = gradepeaks2D(img_double, img_peakpositions_high, 3, 11);
 % img_grade_high = load('gimg.mat');
 % img_grade_high = img_grade_high.img_grade_high;
 
@@ -402,42 +409,42 @@ img_grade_high = gradepeaks2D(img_double, img_peakpositions_high, 3, 11);
 %}
 
 Data = [];
-for k = 1:length(int_linearindices_high)
+for k = 1:size(f_data,1)  %%% ...length(int_linearindices_high)
     Data(k).img = str_imgfilename;
-    Data(k).peak = sum(img_grade_high(int_R_high(k), int_C_high(k), :));
+    Data(k).peak = f_data(k,4); %%% ... sum(img_grade_high(int_R_high(k), int_C_high(k), :));
     % This is for area intensities
-    Data(k).intensity = sum(sum(img_double(int_R_high(k)-2:int_R_high(k)+2, int_C_high(k)-2:int_C_high(k)+2)/54));
+    Data(k).intensity = 0 %%% ... sum(sum(img_double(int_R_high(k)-2:int_R_high(k)+2, int_C_high(k)-2:int_C_high(k)+2)/54));
     % This is for point intensities 
     % Data(k).intensity = img_double(int_R_high(k), int_C_high(k))/54;
     Data(k).negintensity = -1*Data(k).intensity;
-    assert(length(img_grade_high(int_R_high(k), int_C_high(k), :)) == 5, 'Length mismatch in firstprocimg');
-    Data(k).r = int_R_high(k);
-    Data(k).c = int_C_high(k);
+%%% ... assert(length(img_grade_high(int_R_high(k), int_C_high(k), :)) == 5, 'Length mismatch in firstprocimg');
+    Data(k).r = f_data(k,2) %%% ... int_R_high(k);
+    Data(k).c = f_data(k,1) %%% ... int_C_high(k);
     Data(k).ispeak = 1;
 end
 
-logicalIndexOfElement = arrayfun(@(x)all(x.peak<1e14),Data);
-[Indices] = find(logicalIndexOfElement);
-Data = Data(Indices);
+%%% ... logicalIndexOfElement = arrayfun(@(x)all(x.peak<1e14),Data);
+%%% ... [Indices] = find(logicalIndexOfElement);
+%%% ... Data = Data(Indices);
 
 % Rather than do a scalarization, generate a pareto front by ...
 % ... Extracting the 'peak' vector from data
-vec_peak = cat(1, Data.peak);
+%%% ... vec_peak = cat(1, Data.peak);
 % ... Extracting the 'negativeintensity' vector from data
-vec_negi = cat(1, Data.negintensity);
-mult_obj = [vec_peak vec_negi];
+%%% ... vec_negi = cat(1, Data.negintensity);
+%%% ... mult_obj = [vec_peak vec_negi];
 
-[ReturnData, k] = sortParetoFrontsMinimally( mult_obj );
+%%% ... [ReturnData, k] = sortParetoFrontsMinimally( mult_obj );
 
 % Order the data by position in the Pareto front
-for i = 1:k-1
-    Indices = ReturnData(i).F;
-    if i == 1
-        DataNew = Data(Indices);
-    else
-        DataNew = [DataNew Data(Indices)];
-    end
-end
+%%% ... for i = 1:k-1
+%%% ...     Indices = ReturnData(i).F;
+%%% ...     if i == 1
+%%% ...         DataNew = Data(Indices);
+%%% ...     else
+%%% ...         DataNew = [DataNew Data(Indices)];
+%%% ...     end
+%%% ... end
 
 % DataNew = load('DataNew.mat');
 % DataNew = DataNew.DataNew;
@@ -445,11 +452,14 @@ end
 %%%% COMMENTED OUT BELOW since the data is already sorted due to the Pareto
 %%%% fronts.
 
-% NestedData = (nestedSortStruct(Data, 'peak'));  
+% NestedData = (nestedSortStruct(Data, 'peak'));
 
-DataNew = DataNew(1:600);
+Data = nestedSortStruct(Data, 'peak');
 
-Data = fliplr(DataNew);
+%%% ... DataNew = DataNew(1:600);
+%%% ... 
+%%% ... Data = fliplr(DataNew);
+
 limit = round(length(Data) * f_BGratio);
 
 % Code below is used to set a certain percentage of the fluorophore's
