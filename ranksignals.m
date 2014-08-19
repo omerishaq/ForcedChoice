@@ -119,7 +119,7 @@ global struct_UP;
 global struct_DOWN;
 
 % Get file info from the user
-[FILENAME, PATHNAME, FILTERINDEX] = uigetfile();
+[FILENAME, PATHNAME, FILTERINDEX] = uigetfile('*.png');
 str_imgfilename = FILENAME;
 str_imgfilepath = PATHNAME;
 
