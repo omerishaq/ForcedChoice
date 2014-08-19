@@ -130,7 +130,7 @@ for k = 1:length(User_Names)
     ImageData = ImageData + index;
 end
 
-figure; bar (ImageData); hold on; plot(1:65, ones(1,65)*3.5, 'r'); hold off;
+figure; bar (ImageData); hold on; 
 
 figure; plot(ImageData, '+'); hold on; ylim([0 10]); plot(1:65, ones(1,65)*3.5, 'r');
 

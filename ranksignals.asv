@@ -314,18 +314,18 @@ curAxisProps=axis;
 rectangle('Position',[struct_DOWN.c-6,struct_DOWN.r-6,13,13],'EdgeColor','g');
 axis(curAxisProps)
 
-imshow(img_inputimg(struct_UP.r-4:struct_UP.r+4, struct_UP.c-4:struct_UP.c+4), 'Parent', handles.axes2);
-imshow(img_inputimg(struct_DOWN.r-4:struct_DOWN.r+4, struct_DOWN.c-4:struct_DOWN.c+4), 'Parent', handles.axes3);
+imshow(img_inputimg(struct_UP.r-3:struct_UP.r+3, struct_UP.c-3:struct_UP.c+3), 'Parent', handles.axes2);
+imshow(img_inputimg(struct_DOWN.r-3:struct_DOWN.r+3, struct_DOWN.c-3:struct_DOWN.c+3), 'Parent', handles.axes3);
 
-% axes(handles.axes2) 
-% curAxisProps=axis;
-% rectangle('Position',[1,1,6,6],'EdgeColor','r');
-% axis(curAxisProps)
-% 
-% axes(handles.axes3) 
-% curAxisProps=axis;
-% rectangle('Position',[1,1,6,6],'EdgeColor','g');
-% axis(curAxisProps)
+axes(handles.axes2) 
+curAxisProps=axis;
+rectangle('Position',[1,1,6,6],'EdgeColor','r');
+axis(curAxisProps)
+
+axes(handles.axes3) 
+curAxisProps=axis;
+rectangle('Position',[1,1,6,6],'EdgeColor','g');
+axis(curAxisProps)
 
 function [struct_H, struct_L] = performforcedchoice (struct_input)
 
@@ -362,17 +362,7 @@ lenL = length(int_matches);
 % indicesL = floor([1 : ratioL : lenL]);
 % int_temp2 = indicesL(int_samplescounter);
 
-randnum = floor(rand * lenL);
-disp(['Low Index = ' num2str(randnum)]);
-if randnum == 0
-    struct_L = struct_lowSNR(1);
-else
-    try
-    struct_L = struct_lowSNR(randnum);
-    catch 
-        a = 10;
-    end
-end
+struct_L = struct_lowSNR(floor(rand * lenL));
 
 % Increment the counter
 int_samplescounter = int_samplescounter + 1;
@@ -426,16 +416,16 @@ for k = 1:size(f_data,1)  %%% ...length(int_linearindices_high)
     Data(k).img = str_imgfilename;
     Data(k).peak = f_data(k,4); %%% ... sum(img_grade_high(int_R_high(k), int_C_high(k), :));
     Data(k).sigma = f_data(k,3);
-    Data(k).std = f_data(k,5);
-    Data(k).uncertainty = f_data(k,6);
+    Data(k).std = f_data(k,);
+    Data(k).peak =
     % This is for area intensities
     Data(k).intensity = 0 %%% ... sum(sum(img_double(int_R_high(k)-2:int_R_high(k)+2, int_C_high(k)-2:int_C_high(k)+2)/54));
     % This is for point intensities 
     % Data(k).intensity = img_double(int_R_high(k), int_C_high(k))/54;
     Data(k).negintensity = -1*Data(k).intensity;
 %%% ... assert(length(img_grade_high(int_R_high(k), int_C_high(k), :)) == 5, 'Length mismatch in firstprocimg');
-    Data(k).r = round(f_data(k,2)); %%% ... int_R_high(k);
-    Data(k).c = round(f_data(k,1)); %%% ... int_C_high(k);
+    Data(k).r = f_data(k,2) %%% ... int_R_high(k);
+    Data(k).c = f_data(k,1) %%% ... int_C_high(k);
     Data(k).ispeak = 1;
 end
 
