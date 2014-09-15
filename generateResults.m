@@ -79,7 +79,7 @@ function pushbutton1_Callback(hObject, eventdata, handles)
 global img_inputimg;
 global str_inputimgname;
 
-[FILENAME, PATHNAME, FILTERINDEX] = uigetfile();
+[FILENAME, PATHNAME, FILTERINDEX] = uigetfile('*.png');
 str_imgfilename = FILENAME;
 str_imgfilepath = PATHNAME;
 
@@ -121,18 +121,32 @@ User_Names = unique(Cells(4,:)');
 Cells_Names = Cells(4,:);
 Peak_Details = Cells(1,:);
 
-ImageData = zeros(1,65);
+imgnum = 97;
+
+ImageData = zeros(1,imgnum);
 
 for k = 1:length(User_Names)
     index = find(strcmp(Cells_Names, User_Names{k}));
-    index = index(1:65);
+    index = index(1:imgnum);
     index = cell2mat(Peak_Details(index));
     ImageData = ImageData + index;
 end
 
-figure; bar (ImageData); hold on; plot(1:65, ones(1,65)*3.5, 'r'); hold off;
+figure; bar (ImageData); hold on; plot(1:imgnum, ones(1,imgnum)*3, 'r'); hold off; ylim([0 10]); xlim([0 imgnum]);
+figure; plot(ImageData, '+'); hold on; ylim([0 10]); plot(1:imgnum, ones(1,imgnum)*3, 'r'); xlim([0 imgnum]);
 
-figure; plot(ImageData, '+'); hold on; ylim([0 10]); plot(1:65, ones(1,65)*3.5, 'r');
+data_length = length(ImageData);
+ImageData = [ImageData; 1:data_length ];
+ImageData = ImageData';
+ImageData = sortrows(ImageData,1);
+ImageData = flipud(ImageData);
+
+figure; bar (ImageData(:,1)); hold on; plot(1:imgnum, ones(1,imgnum)*4, 'r'); hold off; ylim([0 10]); xlim([0 imgnum]);
+figure; plot(ImageData(:,1), '+'); hold on; ylim([0 10]); plot(1:imgnum, ones(1,imgnum)*4, 'r'); xlim([0 imgnum]);
+
+
+
+
 
 
 

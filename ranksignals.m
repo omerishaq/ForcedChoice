@@ -107,7 +107,7 @@ flag_debug = 0;
 % The data was acquired at '200' samples with background size of '0.3'
 
 global f_BGratio;
-f_BGratio = 0.2;
+f_BGratio = 0.15;
 
 global int_samples;
 global int_samplescounter;
@@ -314,8 +314,8 @@ curAxisProps=axis;
 rectangle('Position',[struct_DOWN.c-6,struct_DOWN.r-6,13,13],'EdgeColor','g');
 axis(curAxisProps)
 
-imshow(img_inputimg(struct_UP.r-4:struct_UP.r+4, struct_UP.c-4:struct_UP.c+4), 'Parent', handles.axes2);
-imshow(img_inputimg(struct_DOWN.r-4:struct_DOWN.r+4, struct_DOWN.c-4:struct_DOWN.c+4), 'Parent', handles.axes3);
+imshow(img_inputimg(struct_UP.r-4:struct_UP.r+4, struct_UP.c-4:struct_UP.c+4), 'Parent', handles.axes2); 
+imshow(img_inputimg(struct_DOWN.r-4:struct_DOWN.r+4, struct_DOWN.c-4:struct_DOWN.c+4), 'Parent', handles.axes3); 
 
 % axes(handles.axes2) 
 % curAxisProps=axis;
@@ -580,7 +580,7 @@ loadnext(handles);
 function [] = updateMainScreen(handles)
 
 global img_inputimg;
-imshow(img_inputimg, 'Parent', handles.axes1);
+imshow(img_inputimg, 'Parent', handles.axes1); 
 % imshow(img_inputimg, [prctile(double(img_inputimg(:)),1), prctile(double(img_inputimg(:)),99)], 'Parent', handles.axes1);
 
 function [] = disableAllControls(handles)
