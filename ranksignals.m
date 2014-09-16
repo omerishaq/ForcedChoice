@@ -22,7 +22,7 @@ function varargout = ranksignals(varargin)
 
 % Edit the above text to modify the response to help ranksignals
 
-% Last Modified by GUIDE v2.5 14-May-2014 01:07:18
+% Last Modified by GUIDE v2.5 16-Sep-2014 13:03:58
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -60,6 +60,9 @@ function ranksignals_OpeningFcn(hObject, eventdata, handles, varargin)
 axis (handles.axes1, 'off');
 axis (handles.axes2, 'off');
 axis (handles.axes3, 'off');
+
+set(handles.btnNextImage,'Enable','off');
+set(handles.btnPreviousImage,'Enable','off');
 
 addpath 'C:\Users\Omer\Documents\GitHub\UtilityFunctions'
 
@@ -101,6 +104,19 @@ global img_inputimg;
 global str_username;
 global struct_data;
 global flag_debug;
+global str_imgcontrol;
+
+global img_next;
+global img_prev;
+
+global const_str_left;
+global const_str_right;
+global const_str_middle;
+
+const_str_left = 'left';
+const_str_right = 'right';
+const_str_middle = 'middle';
+
 
 flag_debug = 0;
 
@@ -229,8 +245,19 @@ else
     end
 
     updatescreens(handles);
-        
-end
+    
+end % end of the if block
+
+% load the next and the previous images
+loadNeighborImages()
+
+% after loading these images enable the button for navigating to these
+% images
+set(handles.btnNextImage,'Enable','on');
+set(handles.btnPreviousImage,'Enable','on');
+
+% update the structure for finding which image is currently enabled
+str_imgcontrol = const_str_middle;
 
 
 function edit1_Callback(hObject, eventdata, handles)
@@ -593,7 +620,110 @@ set(handles.pushbutton4,'Enable','off');
 msgbox('Session finsihed for this image, please select another image','modal');
 set(handles.pushbutton1,'Enable','on');
 
+function [] = loadNeighborImages()
 
+global str_imgfilename
+global img_next;
+global img_prev;
+global str_imgfilepath
 
+% load the next and the previous image based on the image name.
+str_prefix = str_imgfilename(1:end-8);
+str_postfix = str_imgfilename(end-7:end-4);
+str_ext = str_imgfilename(end-3:end);
 
+num_postfix = str2num(str_postfix);
+num_increment = num_postfix+1;
+num_decrement = num_postfix-1;
+str_increment = num2str(num_increment);
+str_decrement = num2str(num_decrement);
 
+strt = '';
+for i = 1:(4-length(str_increment))
+    strt = [strt '0'];
+end
+str_increment = [strt str_increment];
+
+strt = '';
+for i = 1:(4-length(str_decrement))
+    strt = [strt '0'];
+end
+str_decrement = [strt str_decrement];
+
+str_img_next = [str_prefix str_increment str_ext]; 
+str_img_prev = [str_prefix str_decrement str_ext]; 
+
+img_next = imread([str_imgfilepath str_img_next]);
+img_prev = imread([str_imgfilepath str_img_prev]);
+
+% Below are the two event handling codes which were added to handle the
+% events for the next button and the previous button.
+
+% --- Executes on button press in btnNextImage.
+function btnNextImage_Callback(hObject, eventdata, handles)
+% hObject    handle to btnNextImage (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+global str_imgcontrol;
+
+global img_inputimg;
+global img_next;
+global img_prev;
+
+global const_str_left;
+global const_str_right;
+global const_str_middle;
+
+if strcmp(str_imgcontrol, const_str_middle)
+    str_imgcontrol = const_str_right;
+    set(handles.btnNextImage,'Enable','off');
+    imshow(img_next, 'Parent', handles.axes1); 
+    
+    set(handles.pushbutton3,'Enable','off');
+    set(handles.pushbutton4,'Enable','off');
+    
+else
+    str_imgcontrol = const_str_middle;
+    set(handles.btnPreviousImage,'Enable','on');
+    imshow(img_inputimg, 'Parent', handles.axes1); 
+    updatescreens (handles)
+    
+    set(handles.pushbutton3,'Enable','on');
+    set(handles.pushbutton4,'Enable','on');
+    
+end
+
+% --- Executes on button press in btnPreviousImage.
+function btnPreviousImage_Callback(hObject, eventdata, handles)
+% hObject    handle to btnPreviousImage (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+global str_imgcontrol;
+
+global img_inputimg;
+global img_next;
+global img_prev;
+
+global const_str_left;
+global const_str_right;
+global const_str_middle;
+
+if strcmp(str_imgcontrol, const_str_middle)
+    str_imgcontrol = const_str_left;
+    set(handles.btnPreviousImage,'Enable','off');
+    imshow(img_prev, 'Parent', handles.axes1); 
+    
+    set(handles.pushbutton3,'Enable','off');
+    set(handles.pushbutton4,'Enable','off');
+    
+else
+    str_imgcontrol = const_str_middle;
+    set(handles.btnNextImage,'Enable','on');
+    imshow(img_inputimg, 'Parent', handles.axes1);
+    updatescreens (handles) 
+    
+    set(handles.pushbutton3,'Enable','on');
+    set(handles.pushbutton4,'Enable','on');
+end
